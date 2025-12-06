@@ -20,18 +20,14 @@ export default function WelcomeScreen({ navigation }) {
       <View style={styles.buttonContainer}>
         <TouchableOpacity 
           style={styles.button}
-          onPress={() => {
-            alert('Register button clicked - Working!');
-          }}
+          onPress={() => navigation.navigate('Register')}
         >
           <Text style={styles.buttonText}>REGISTER</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
           style={styles.button}
-          onPress={() => {
-            alert('Login button clicked - Working!');
-          }}
+          onPress={() => navigation.navigate('Login')}
         >
           <Text style={styles.buttonText}>LOGIN</Text>
         </TouchableOpacity>
