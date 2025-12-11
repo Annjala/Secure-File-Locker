@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, StatusBar } from 'react-native';
-import { Camera } from 'expo-camera';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function RegisterScreen({ navigation }) {
-  const [step, setStep] = useState('request-permission'); // request-permission, detecting-face, input-details
-  const [hasPermission, setHasPermission] = useState(null);
-  const [camera, setCamera] = useState(null);
+  const [step, setStep] = useState('request-permission');
+  const [permission, requestPermission] = useCameraPermissions();
   const [faceData, setFaceData] = useState(null);
   const [username, setUsername] = useState('');
   const [pin, setPin] = useState('');
@@ -14,27 +13,29 @@ export default function RegisterScreen({ navigation }) {
 
   useEffect(() => {
     if (step === 'request-permission') {
-      requestCameraPermission();
+      handlePermission();
     }
   }, [step]);
 
-  const requestCameraPermission = async () => {
-    const { status } = await Camera.requestCameraPermissionsAsync();
-    setHasPermission(status === 'granted');
-    if (status === 'granted') {
-      setStep('detecting-face');
-      // Simulate face detection after 2 seconds
-      setTimeout(() => {
-        captureFace();
-      }, 2000);
+  const handlePermission = async () => {
+    if (!permission) return;
+    
+    if (!permission.granted) {
+      const result = await requestPermission();
+      if (result.granted) {
+        setStep('detecting-face');
+        setTimeout(() => captureFace(), 2000);
+      } else {
+        Alert.alert('Permission Denied', 'Camera permission is required.');
+        navigation.goBack();
+      }
     } else {
-      Alert.alert('Permission Denied', 'Camera permission is required for face registration.');
-      navigation.goBack();
+      setStep('detecting-face');
+      setTimeout(() => captureFace(), 2000);
     }
   };
 
   const captureFace = () => {
-    // Simulate face capture
     setFaceData({ captured: true, timestamp: Date.now() });
     setStep('input-details');
   };
@@ -53,13 +54,12 @@ export default function RegisterScreen({ navigation }) {
       return;
     }
 
-    // Save registration data (will implement Supabase later)
     Alert.alert('Success', 'Registration successful!', [
       { text: 'OK', onPress: () => navigation.navigate('Welcome') }
     ]);
   };
 
-  if (step === 'request-permission' || step === 'detecting-face') {
+  if (step === 'detecting-face') {
     return <LoadingSpinner message="DETECTING FACE" />;
   }
 
@@ -68,6 +68,7 @@ export default function RegisterScreen({ navigation }) {
       <StatusBar barStyle="light-content" backgroundColor="#8B5CF6" />
       
       <View style={styles.header}>
+        <Text style={styles.icon}>📝</Text>
         <Text style={styles.title}>REGISTER</Text>
       </View>
 
@@ -126,6 +127,10 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingBottom: 30,
     alignItems: 'center',
+  },
+  icon: {
+    fontSize: 50,
+    marginBottom: 10,
   },
   title: {
     fontSize: 24,

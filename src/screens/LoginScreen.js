@@ -1,75 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, StatusBar } from 'react-native';
-import { Camera } from 'expo-camera';
+import { useCameraPermissions } from 'expo-camera';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function LoginScreen({ navigation }) {
-  const [step, setStep] = useState('request-permission'); // request-permission, detecting-face, checking-liveness, enter-pin
-  const [hasPermission, setHasPermission] = useState(null);
+  const [step, setStep] = useState('request-permission');
+  const [permission, requestPermission] = useCameraPermissions();
   const [pin, setPin] = useState('');
   const [failedAttempts, setFailedAttempts] = useState(0);
-  const [isLocked, setIsLocked] = useState(false);
 
   useEffect(() => {
     if (step === 'request-permission') {
-      requestCameraPermission();
+      handlePermission();
     }
   }, [step]);
 
-  const requestCameraPermission = async () => {
-    const { status } = await Camera.requestCameraPermissionsAsync();
-    setHasPermission(status === 'granted');
-    if (status === 'granted') {
-      setStep('detecting-face');
-      // Simulate face detection after 2 seconds
-      setTimeout(() => {
-        detectFace();
-      }, 2000);
+  const handlePermission = async () => {
+    if (!permission) return;
+    
+    if (!permission.granted) {
+      const result = await requestPermission();
+      if (result.granted) {
+        setStep('detecting-face');
+        setTimeout(() => detectFace(), 2000);
+      } else {
+        Alert.alert('Permission Denied', 'Camera permission is required.');
+        navigation.goBack();
+      }
     } else {
-      Alert.alert('Permission Denied', 'Camera permission is required for login.');
-      navigation.goBack();
+      setStep('detecting-face');
+      setTimeout(() => detectFace(), 2000);
     }
   };
 
   const detectFace = () => {
-    // Simulate face detection
     setStep('checking-liveness');
-    // Simulate liveness check after 2 seconds
-    setTimeout(() => {
-      checkLiveness();
-    }, 2000);
+    setTimeout(() => checkLiveness(), 2000);
   };
 
   const checkLiveness = () => {
-    // Simulate liveness check (frame comparison)
-    const livenessDetected = true; // In real app, compare multiple frames
-    
-    if (livenessDetected) {
-      setStep('enter-pin');
-    } else {
-      Alert.alert('Liveness Check Failed', 'Please try again.');
-      navigation.goBack();
-    }
+    setStep('enter-pin');
   };
 
   const handleLogin = () => {
-    // For testing, accept PIN "123456"
     if (pin === '123456') {
       Alert.alert('Success', 'Login successful!', [
         { text: 'OK', onPress: () => navigation.replace('Home') }
       ]);
-      setFailedAttempts(0);
     } else {
       const newFailedAttempts = failedAttempts + 1;
       setFailedAttempts(newFailedAttempts);
       
       if (newFailedAttempts >= 3) {
-        setIsLocked(true);
-        Alert.alert(
-          'Account Locked', 
-          'Too many failed attempts. Account locked for 20 minutes.',
-          [{ text: 'OK', onPress: () => navigation.goBack() }]
-        );
+        Alert.alert('Account Locked', 'Too many failed attempts. Locked for 20 minutes.', [
+          { text: 'OK', onPress: () => navigation.goBack() }
+        ]);
       } else {
         Alert.alert('Error', `Incorrect PIN. ${3 - newFailedAttempts} attempts remaining.`);
       }
@@ -84,52 +69,42 @@ export default function LoginScreen({ navigation }) {
     return <LoadingSpinner message="CHECKING LIVENESS" />;
   }
 
-  if (step === 'enter-pin') {
-    return (
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="#8B5CF6" />
-        
-        <View style={styles.header}>
-          <Text style={styles.title}>ENTER PIN</Text>
-        </View>
-
-        <View style={styles.content}>
-          <Text style={styles.subtitle}>Enter your 6-digit PIN</Text>
-          
-          <TextInput
-            style={styles.input}
-            placeholder="Enter PIN"
-            placeholderTextColor="#9CA3AF"
-            value={pin}
-            onChangeText={setPin}
-            keyboardType="numeric"
-            secureTextEntry
-            maxLength={10}
-            editable={!isLocked}
-          />
-
-          <TouchableOpacity 
-            style={[styles.button, isLocked && styles.buttonDisabled]} 
-            onPress={handleLogin}
-            disabled={isLocked}
-          >
-            <Text style={styles.buttonText}>LOGIN</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={[styles.button, styles.backButton]} 
-            onPress={() => navigation.goBack()}
-          >
-            <Text style={styles.buttonText}>BACK</Text>
-          </TouchableOpacity>
-
-          <Text style={styles.testInfo}>Test PIN: 123456</Text>
-        </View>
+  return (
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#8B5CF6" />
+      
+      <View style={styles.header}>
+        <Text style={styles.icon}>🔐</Text>
+        <Text style={styles.title}>ENTER PIN</Text>
       </View>
-    );
-  }
 
-  return <LoadingSpinner message="LOADING" />;
+      <View style={styles.content}>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter PIN"
+          placeholderTextColor="#9CA3AF"
+          value={pin}
+          onChangeText={setPin}
+          keyboardType="numeric"
+          secureTextEntry
+          maxLength={10}
+        />
+
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>LOGIN</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={[styles.button, styles.backButton]} 
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.buttonText}>BACK</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.testInfo}>Test PIN: 123456</Text>
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -142,6 +117,10 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
     alignItems: 'center',
   },
+  icon: {
+    fontSize: 50,
+    marginBottom: 10,
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -151,12 +130,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 30,
     justifyContent: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#6B21A8',
-    textAlign: 'center',
-    marginBottom: 20,
   },
   input: {
     backgroundColor: '#FFFFFF',
@@ -180,9 +153,6 @@ const styles = StyleSheet.create({
   backButton: {
     backgroundColor: '#6B21A8',
     marginTop: 10,
-  },
-  buttonDisabled: {
-    backgroundColor: '#9CA3AF',
   },
   buttonText: {
     color: '#FFFFFF',

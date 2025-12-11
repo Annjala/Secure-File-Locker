@@ -1,47 +1,34 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, StatusBar, ScrollView } from 'react-native';
-import { User, Settings, LogOut, Home as HomeIcon } from 'lucide-react-native';
 
 export default function ProfileScreen({ navigation }) {
   const handleLogout = () => {
     Alert.alert(
       'Logout',
-      'Are you sure you want to logout?',
+      'Are you sure?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Logout', 
-          onPress: () => navigation.replace('Welcome'),
-          style: 'destructive'
-        }
+        { text: 'Logout', onPress: () => navigation.replace('Welcome') }
       ]
     );
-  };
-
-  const handleSettings = () => {
-    Alert.alert('Settings', 'Settings feature coming soon!');
   };
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#8B5CF6" />
       
-      {/* Header */}
       <View style={styles.header}>
+        <Text style={styles.headerIcon}>👤</Text>
         <Text style={styles.title}>PROFILE</Text>
       </View>
 
       <ScrollView style={styles.content}>
-        {/* Profile Card */}
         <View style={styles.profileCard}>
-          <View style={styles.avatarContainer}>
-            <User color="#8B5CF6" size={60} />
-          </View>
+          <Text style={styles.avatar}>👨‍💼</Text>
           <Text style={styles.username}>Test User</Text>
           <Text style={styles.email}>testuser@securelocker.com</Text>
         </View>
 
-        {/* User Info Card */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Account Information</Text>
           <View style={styles.infoRow}>
@@ -49,39 +36,28 @@ export default function ProfileScreen({ navigation }) {
             <Text style={styles.infoValue}>Test User</Text>
           </View>
           <View style={styles.infoRow}>
-            <Text style={styles.infoLabel}>Registration Date:</Text>
-            <Text style={styles.infoValue}>Dec 06, 2024</Text>
-          </View>
-          <View style={styles.infoRow}>
             <Text style={styles.infoLabel}>Face ID:</Text>
             <Text style={styles.infoValue}>Enabled ✓</Text>
           </View>
         </View>
 
-        {/* Action Buttons */}
-        <TouchableOpacity style={styles.actionButton} onPress={handleSettings}>
-          <Settings color="#8B5CF6" size={24} />
-          <Text style={styles.actionText}>Settings</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={[styles.actionButton, styles.logoutButton]} onPress={handleLogout}>
-          <LogOut color="#DC2626" size={24} />
-          <Text style={[styles.actionText, styles.logoutText]}>Logout</Text>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.logoutIcon}>🚪</Text>
+          <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
       </ScrollView>
 
-      {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
         <TouchableOpacity 
           style={styles.navButton}
           onPress={() => navigation.navigate('Home')}
         >
-          <HomeIcon color="#FFFFFF" size={24} />
+          <Text style={styles.navIcon}>🏠</Text>
           <Text style={styles.navText}>Home</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.navButton}>
-          <User color="#FFFFFF" size={24} />
+          <Text style={styles.navIcon}>👤</Text>
           <Text style={styles.navText}>Profile</Text>
         </TouchableOpacity>
       </View>
@@ -98,9 +74,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#8B5CF6',
     paddingTop: 50,
     paddingBottom: 20,
-    paddingHorizontal: 20,
+    alignItems: 'center',
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
+  },
+  headerIcon: {
+    fontSize: 40,
+    marginBottom: 10,
   },
   title: {
     fontSize: 28,
@@ -118,18 +98,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 15,
     elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
   },
-  avatarContainer: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#F3E8FF',
-    justifyContent: 'center',
-    alignItems: 'center',
+  avatar: {
+    fontSize: 60,
     marginBottom: 15,
   },
   username: {
@@ -148,10 +119,6 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 15,
     elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
   },
   cardTitle: {
     fontSize: 18,
@@ -173,36 +140,34 @@ const styles = StyleSheet.create({
     color: '#1F2937',
     fontWeight: '600',
   },
-  actionButton: {
+  logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FEE2E2',
     padding: 15,
     borderRadius: 10,
-    marginBottom: 10,
-    elevation: 2,
+    justifyContent: 'center',
   },
-  logoutButton: {
-    backgroundColor: '#FEE2E2',
-  },
-  actionText: {
-    fontSize: 16,
-    color: '#6B21A8',
-    marginLeft: 15,
-    fontWeight: '600',
+  logoutIcon: {
+    fontSize: 24,
+    marginRight: 10,
   },
   logoutText: {
+    fontSize: 16,
     color: '#DC2626',
+    fontWeight: '600',
   },
   bottomNav: {
     flexDirection: 'row',
     backgroundColor: '#6B21A8',
     paddingVertical: 15,
-    paddingHorizontal: 20,
     justifyContent: 'space-around',
   },
   navButton: {
     alignItems: 'center',
+  },
+  navIcon: {
+    fontSize: 24,
   },
   navText: {
     color: '#FFFFFF',

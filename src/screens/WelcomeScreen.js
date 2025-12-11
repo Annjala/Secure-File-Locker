@@ -6,17 +6,15 @@ export default function WelcomeScreen({ navigation }) {
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#8B5CF6" />
       
-      {/* Header/Title Area */}
       <View style={styles.header}>
+        <Text style={styles.icon}>🔒</Text>
         <Text style={styles.title}>SECURE FILE LOCKER</Text>
       </View>
 
-      {/* Main Content Area */}
       <View style={styles.content}>
         <Text style={styles.subtitle}>Protect Your Files with Face Recognition</Text>
       </View>
 
-      {/* Buttons */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity 
           style={styles.button}
@@ -46,6 +44,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingTop: 60,
+  },
+  icon: {
+    fontSize: 60,
+    marginBottom: 20,
   },
   title: {
     fontSize: 28,

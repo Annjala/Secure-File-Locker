@@ -1,46 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, StatusBar } from 'react-native';
-import { Upload, Eye, Trash2, Home as HomeIcon, User } from 'lucide-react-native';
 
 export default function HomeScreen({ navigation }) {
-  const [lastActivity, setLastActivity] = useState(Date.now());
-  const [files, setFiles] = useState([
-    { id: 1, name: 'Document1.pdf', size: '2.5 MB', type: 'PDF', date: '2024-12-01' },
-    { id: 2, name: 'Photo.jpg', size: '1.8 MB', type: 'Image', date: '2024-12-02' },
-  ]);
-
-  // Session timeout check
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const timeSinceLastActivity = Date.now() - lastActivity;
-      if (timeSinceLastActivity > 60000) { // 1 minute
-        Alert.alert('Session Timeout', 'Your session has expired. Please login again.', [
-          { text: 'OK', onPress: () => navigation.replace('Welcome') }
-        ]);
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [lastActivity]);
-
-  const updateActivity = () => {
-    setLastActivity(Date.now());
-  };
-
-  const verifyPinAndExecute = (action, callback) => {
+  const verifyPin = (callback) => {
     Alert.prompt(
       'Security Check',
-      'Enter your PIN to continue',
+      'Enter your PIN',
       [
         { text: 'Cancel', style: 'cancel' },
         { 
           text: 'OK', 
           onPress: (pin) => {
-            if (pin === '123456') {
-              callback();
-            } else {
-              Alert.alert('Error', 'Incorrect PIN');
-            }
+            if (pin === '123456') callback();
+            else Alert.alert('Error', 'Incorrect PIN');
           }
         }
       ],
@@ -48,81 +20,57 @@ export default function HomeScreen({ navigation }) {
     );
   };
 
-  const handleAddFile = () => {
-    updateActivity();
-    verifyPinAndExecute('Add File', () => {
-      Alert.alert('Add File', 'File upload feature will be implemented here');
-    });
-  };
-
-  const handleViewFiles = () => {
-    updateActivity();
-    verifyPinAndExecute('View Files', () => {
-      Alert.alert('View Files', 'File viewing feature will be implemented here');
-    });
-  };
-
-  const handleDeleteFile = () => {
-    updateActivity();
-    verifyPinAndExecute('Delete File', () => {
-      Alert.alert('Delete File', 'File deletion feature will be implemented here');
-    });
-  };
-
   return (
-    <View style={styles.container} onTouchStart={updateActivity}>
+    <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#8B5CF6" />
       
-      {/* Header */}
       <View style={styles.header}>
+        <Text style={styles.headerIcon}>🏠</Text>
         <Text style={styles.title}>HOME</Text>
         <Text style={styles.subtitle}>Secure File Vault</Text>
       </View>
 
-      {/* Main Content */}
       <ScrollView style={styles.content}>
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Quick Actions</Text>
           
-          <TouchableOpacity style={styles.actionButton} onPress={handleAddFile}>
-            <Upload color="#8B5CF6" size={24} />
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => verifyPin(() => Alert.alert('Add Files', 'Coming soon!'))}
+          >
+            <Text style={styles.actionIcon}>📤</Text>
             <Text style={styles.actionText}>Add Files</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionButton} onPress={handleViewFiles}>
-            <Eye color="#8B5CF6" size={24} />
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => verifyPin(() => Alert.alert('View Files', 'Coming soon!'))}
+          >
+            <Text style={styles.actionIcon}>👁️</Text>
             <Text style={styles.actionText}>View Files</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionButton} onPress={handleDeleteFile}>
-            <Trash2 color="#8B5CF6" size={24} />
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => verifyPin(() => Alert.alert('Delete Files', 'Coming soon!'))}
+          >
+            <Text style={styles.actionIcon}>🗑️</Text>
             <Text style={styles.actionText}>Delete Files</Text>
           </TouchableOpacity>
         </View>
-
-        {/* File Stats */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Storage Info</Text>
-          <Text style={styles.statText}>Total Files: {files.length}</Text>
-          <Text style={styles.statText}>Total Size: 4.3 MB / 15 MB</Text>
-        </View>
       </ScrollView>
 
-      {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navButton} onPress={updateActivity}>
-          <HomeIcon color="#FFFFFF" size={24} />
+        <TouchableOpacity style={styles.navButton}>
+          <Text style={styles.navIcon}>🏠</Text>
           <Text style={styles.navText}>Home</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
-          style={styles.navButton} 
-          onPress={() => {
-            updateActivity();
-            navigation.navigate('Profile');
-          }}
+          style={styles.navButton}
+          onPress={() => navigation.navigate('Profile')}
         >
-          <User color="#FFFFFF" size={24} />
+          <Text style={styles.navIcon}>👤</Text>
           <Text style={styles.navText}>Profile</Text>
         </TouchableOpacity>
       </View>
@@ -142,6 +90,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
+    alignItems: 'center',
+  },
+  headerIcon: {
+    fontSize: 40,
+    marginBottom: 10,
   },
   title: {
     fontSize: 28,
@@ -161,12 +114,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 15,
     padding: 20,
-    marginBottom: 15,
     elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
   },
   cardTitle: {
     fontSize: 18,
@@ -182,26 +130,26 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 10,
   },
+  actionIcon: {
+    fontSize: 24,
+    marginRight: 15,
+  },
   actionText: {
     fontSize: 16,
     color: '#6B21A8',
-    marginLeft: 15,
     fontWeight: '600',
-  },
-  statText: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginVertical: 5,
   },
   bottomNav: {
     flexDirection: 'row',
     backgroundColor: '#6B21A8',
     paddingVertical: 15,
-    paddingHorizontal: 20,
     justifyContent: 'space-around',
   },
   navButton: {
     alignItems: 'center',
+  },
+  navIcon: {
+    fontSize: 24,
   },
   navText: {
     color: '#FFFFFF',
