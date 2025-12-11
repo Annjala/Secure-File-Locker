@@ -15,6 +15,10 @@
         "WRITE_EXTERNAL_STORAGE"
       ],
       "package": "com.securefilelocker.app"
-    }
+    },
+    "plugins": [
+      "expo-asset",
+      "expo-font"
+    ]
   }
 }
